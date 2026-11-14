@@ -1,7 +1,4 @@
 # mask-go
-A shining mask implementation written in Golang. It is intended to be used with masks controlled by the Shining mask app.
-
-It seems that there are several different vendor models avaialable, but they share the same app/protocol. E.g. `Lumen Couture LED Face Changing Mask`.
 
 [Play store link of the control app](https://play.google.com/store/apps/details?id=cn.com.heaton.shiningmask)
 
@@ -24,105 +21,35 @@ mask.InitAndConnect(true)
 mask.SetText("Hello world")
 ```
 
-A demo application is included in the [main.go](main.go) file.
+How to run it (my own notes):
+- go run .
 
-GoDoc can be found [here](https://pkg.go.dev/github.com/GoneUp/mask-go) 
-## Protocol 
-The mask commuicates over Bluetooth LE with the mask. The protocol iself is fairly simply, however there is a AES ECB encryption. 
+| Command | What it does |
+|---|---|
+| `connect` | Connects to the mask again. |
+| `allmode` | Cycles through modes 1–4, pausing 5 seconds in each. |
+| `mode <number>` | Sets the display mode. The code documents modes 1–5: steady, blink, scroll left, scroll right, steady. |
+| `light <number>` | Sets brightness; accepts a byte value (0–255). |
+| `image <number>` | Selects a built-in still image. |
+| `diy <number>` | Selects a DIY image slot. |
+| `speed <number>` | Sets text speed; accepts 0–255. |
+| `color <number>` | Sets the text color mode; documented modes are 0–7. |
+| `fg <#RRGGBB>` | Sets the text foreground color, e.g. `fg #FF0000`. |
+| `bg <#RRGGBB>` | Sets the text background color, e.g. `bg #000000`. |
+| `text` | Uploads a hard-coded test pattern. |
+| `text2` | Uploads another hard-coded test image. |
+| `text3 <message>` | Displays your message, e.g. `text3 Hello mask`. |
+| `exit` | Disconnects and quits. |
 
-Please review this reddit post, it contains all basic protocol details and the AES key used: https://www.reddit.com/r/ReverseEngineering/comments/lr9xxr/comment/h14nm39/?utm_source=reddit&utm_medium=web2x&context=3
+These are the commands implemented in `main.go`. 
 
-The most complicated bit of the mask-go is the text upload. The mask just accepts a bitmap/colors in a very custom format. 
-So to upload text, we have to draw it to a bitmap, convert it accordingly to the protcol and send it in custom manner to the app.
+There is **no interactive `animation` command**; the library has a `SetAnimation` function, but the CLI doesn’t expose it. The startup flags `-draw` and `-text` are separate from the interactive commands.
 
-The protocol is implemented in [mask.go](mask/mask.go) and [draw.go](mask/draw.go).
+Todo:
+- upload photo from the code itself or from vscode
+- animation
+- be able to run a preset mode for some time
+- real time image upload, animation and change display
 
-Braindumping protocol details:
+To upload your own image, the project would need a new command that reads an image file, converts it to the mask’s format, and sends it over Bluetooth. The mask format is limited: it’s 16 pixels high, with one RGB color per vertical column. The current commands are in main.go, and the upload function is in mask.go.
 
-```
-Methods 
-
-ccroll mode:
-05MODEnn 
-nn 01 = steady
-nn 02 = blink
-nn 03 = scroll left
-nn 04 = scroll right
-nn 05 = steady
-
-
-custom text front color:
-06FC<00/01> <RR> <BB> <GG>
-
-custom text back color:
-06BC<00/01> <RR> <BB> <GG>
-
-speed:
-06SPEEDnn
-
-set text color mode:
-03M<00/01><00-07>
-
-00-03= text gradients 
-05-07= background animations
-
-set light
-06LIGHTnn
-
-set image
-06IMAGnn
-
-set anmiation
-06ANIMnn
-
-set diy image
-06PLAY01nn
-
-
-
-Text upload:
-
-	UPLOAD PROCESS:
-	DATS > Mask
-	Mask > DATSOKP
-	per packet
-		Upload ...
-		Mask > REOK
-	DATCP > Mask
-	Mask > DATCPOK
-
-09DATS - 2 byte total len - 2 byte bitmap len 
-
-Image data:
-The display of the mask is 16 pixel high, the data is sent accordingly per pixel colum. 
-For each pixel in a pixel colum a bit is set (on/off). For each colum there is also a RGB value. 
-
-In more formal form:
-  for each column:
-    column encoded in 2byte 
-      b1: line 0-7, bit 0-7
-      b2: line 7-15, bit 0-7
-  for each colum
-    3 byte RGB
-
-
-
-example: 8 colums, 12b pixels, 24b color = 36byte
-FFFF0000 FFFF0000 FFFF0000 FFFF0000  FF0000 FF0000 00FF00 00FF00 FF0000 FF0000 00FF00 00FF00
-
-Implemented in draw.go
-
-sending in the format of max 100b packets:
-  <len with count><pkt count><data, max 98b>
-```
-
-
-## Credits
-
-I was able to learn a lot from other open-source code:
-
-All peeps in this reddit thread https://www.reddit.com/r/ReverseEngineering/comments/lr9xxr/help_me_figure_out_how_to_reverse_engineer_the/
-
-beclaminde with this project https://github.com/beclamide/mask-controller
-
-shawnrancatore with this hacky project https://github.com/shawnrancatore/shining-mask
