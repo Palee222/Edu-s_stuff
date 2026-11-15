@@ -9,9 +9,6 @@ Features:
 
 ![](image.png)
 ## Usage
-Installation with
-`go get github.com/GoneUp/mask-go`
-
 
 Simple usage example
 ```go
@@ -39,17 +36,21 @@ How to run it (my own notes):
 | `text` | Uploads a hard-coded test pattern. |
 | `text2` | Uploads another hard-coded test image. |
 | `text3 <message>` | Displays your message, e.g. `text3 Hello mask`. |
+| `photo <path>` | Uploads an image file, e.g. `photo photosforuse/image.png`. Quote paths containing spaces. |
+| `clearphoto` | Uploads a blank image to clear the currently uploaded image on the mask. |
+| `removephoto <path>` | Deletes the specified local image file after checking that it is a supported image. |
 | `exit` | Disconnects and quits. |
+|go run . -remove-photo <path>| deletes a local image without connecting to the mask |
+|---|---|
 
-These are the commands implemented in `main.go`. 
 
 There is **no interactive `animation` command**; the library has a `SetAnimation` function, but the CLI doesn’t expose it. The startup flags `-draw` and `-text` are separate from the interactive commands.
 
 Todo:
-- upload photo from the code itself or from vscode
 - animation
 - be able to run a preset mode for some time
 - real time image upload, animation and change display
 
-To upload your own image, the project would need a new command that reads an image file, converts it to the mask’s format, and sends it over Bluetooth. The mask format is limited: it’s 16 pixels high, with one RGB color per vertical column. The current commands are in main.go, and the upload function is in mask.go.
+The `photo` command reads PNG, JPEG, or GIF files, scales them to 16 pixels high while preserving their aspect ratio, and uploads them over Bluetooth. The mask uses a one-bit on/off value per pixel and one RGB color per vertical column, so the uploaded result is a simplified image rather than a full-color photo. `removephoto` deletes a local source image; `clearphoto` sends a blank image to the mask. The current protocol does not expose a way to delete image data stored in the mask itself.
 
+To delete a local photo without connecting to the mask, run `go run . -remove-photo photosforuse/image.png`.
