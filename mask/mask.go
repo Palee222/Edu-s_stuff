@@ -18,6 +18,7 @@ type uploadBuffer struct {
 	totalLen       uint16
 	bytesSent      uint16
 	packetCount    byte
+	done           chan error
 }
 
 var uploadRunning bool
@@ -324,6 +325,10 @@ func SetText(text string) error {
 
 // InitUpload starts the bitmap upload process
 func InitUpload(bitmap []byte, colorArray []byte) error {
+	return initUpload(bitmap, colorArray, nil)
+}
+
+func initUpload(bitmap []byte, colorArray []byte, done chan error) error {
 	if !IsConnected() {
 		return fmt.Errorf("not connected")
 	}
@@ -336,6 +341,7 @@ func InitUpload(bitmap []byte, colorArray []byte) error {
 	currentUpload = uploadBuffer{}
 	currentUpload.bitmap = bitmap
 	currentUpload.colorArray = colorArray
+	currentUpload.done = done
 	currentUpload.totalLen = uint16(len(currentUpload.bitmap) + len(currentUpload.colorArray))
 	currentUpload.bytesSent = 0
 	currentUpload.completeBuffer = make([]byte, 0)
@@ -364,9 +370,10 @@ func InitUpload(bitmap []byte, colorArray []byte) error {
 	buf = padByteArray(buf, btPaddedPacketSize)
 	log.Infof("Upload Init upload totlen %d, bit len %d out: %v", currentUpload.totalLen, len(currentUpload.bitmap), buf)
 
+	uploadRunning = true
 	err := SendDataToBtChar(genralBtChar, EncryptAes128(buf))
-	if err == nil {
-		uploadRunning = true
+	if err != nil {
+		finishUpload(err)
 	}
 	return err
 }
@@ -380,16 +387,22 @@ func maskUploadCallback(encBuffer []byte) {
 
 	if resp == "DATSOK" {
 		//ok, we can start to send
-		maskUploadPart()
+		if err := maskUploadPart(); err != nil {
+			finishUpload(err)
+		}
 	} else if resp == "REOK" {
 		if currentUpload.bytesSent < currentUpload.totalLen {
-			maskUploadPart()
+			if err := maskUploadPart(); err != nil {
+				finishUpload(err)
+			}
 		} else {
-			maskFinishUpload()
+			if err := maskFinishUpload(); err != nil {
+				finishUpload(err)
+			}
 		}
 	} else if resp == "DATCPOK" {
 		//yay we are done
-		uploadRunning = false
+		finishUpload(nil)
 	} else if resp == "PLAYOK" {
 		//do nothing, resp to diy image
 	} else {
@@ -398,9 +411,17 @@ func maskUploadCallback(encBuffer []byte) {
 
 }
 
-func maskUploadPart() {
+func finishUpload(err error) {
+	uploadRunning = false
+	if currentUpload.done != nil {
+		currentUpload.done <- err
+		currentUpload.done = nil
+	}
+}
+
+func maskUploadPart() error {
 	if currentUpload.bytesSent == currentUpload.totalLen {
-		return
+		return nil
 	}
 
 	var maxSize uint16 = uint16(btMaxPacketSize) - 2
@@ -423,13 +444,16 @@ func maskUploadPart() {
 	//buf = padByteArray(buf, 100)
 
 	log.Infof("upload data pkt %d: len %d, data %s", currentUpload.packetCount, bytesToSend, hex.EncodeToString(buf))
-	SendDataToBtChar(uploadBtChar, buf)
+	if err := SendDataToBtChar(uploadBtChar, buf); err != nil {
+		return err
+	}
 
 	currentUpload.bytesSent += uint16(bytesToSend)
 	currentUpload.packetCount += 1
+	return nil
 }
 
-func maskFinishUpload() {
+func maskFinishUpload() error {
 	modeStr := []byte("DATCP")
 
 	buf := []byte{}
@@ -439,7 +463,7 @@ func maskFinishUpload() {
 	buf = padByteArray(buf, btPaddedPacketSize)
 	log.Debug("finish upload out: ", buf)
 
-	SendDataToBtChar(genralBtChar, EncryptAes128(buf))
+	return SendDataToBtChar(genralBtChar, EncryptAes128(buf))
 }
 
 // always returns a byte array with specified len

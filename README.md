@@ -2,10 +2,10 @@
 
 [Play store link of the control app](https://play.google.com/store/apps/details?id=cn.com.heaton.shiningmask)
 
-Features: 
+Features:
 - Connection with mask over BLE (using tinygo.org/x/bluetooth)
-- Controlling the mask remotely (Brightness, Static image, Anmination, Text speed, Text color) 
-- Uploading/showing text on the mask 
+- Controlling the mask remotely (Brightness, Static image, Anmination, Text speed, Text color)
+- Uploading/showing text on the mask
 
 ![](image.png)
 ## Usage
@@ -37,20 +37,28 @@ How to run it (my own notes):
 | `text2` | Uploads another hard-coded test image. |
 | `text3 <message>` | Displays your message, e.g. `text3 Hello mask`. |
 | `photo <path>` | Uploads an image file, e.g. `photo photosforuse/image.png`. Quote paths containing spaces. |
+| `animation <path>` | Plays an animated GIF from a file, e.g. `animation photosforuse/loop.gif`. |
 | `clearphoto` | Uploads a blank image to clear the currently uploaded image on the mask. |
 | `removephoto <path>` | Deletes the specified local image file after checking that it is a supported image. |
 | `exit` | Disconnects and quits. |
-|go run . -remove-photo <path>| deletes a local image without connecting to the mask |
-|---|---|
+| animation <path> | It composes GIF frames, converts them to the mask’s format, sends them sequentially, and follows the GIF’s timing and loop settings. Playback blocks until the GIF finishes; press Ctrl+C to stop one that loops forever. |
 
+To delete a local photo without connecting to the mask, run `go run . -remove-photo photosforuse/image.png`.
 
-There is **no interactive `animation` command**; the library has a `SetAnimation` function, but the CLI doesn’t expose it. The startup flags `-draw` and `-text` are separate from the interactive commands.
+The `animation` command plays GIF frames in sequence, using each frame's delay and loop setting. It blocks while the animation plays; press Ctrl+C to stop a GIF configured to loop forever. GIF frames are converted to the mask's 16-pixel-high, one-bit-per-pixel format with one RGB color per column. `photo <path>` remains available for still images, including the first frame of a GIF.
 
-Todo:
-- animation
+**Todo:**
 - be able to run a preset mode for some time
 - real time image upload, animation and change display
 
 The `photo` command reads PNG, JPEG, or GIF files, scales them to 16 pixels high while preserving their aspect ratio, and uploads them over Bluetooth. The mask uses a one-bit on/off value per pixel and one RGB color per vertical column, so the uploaded result is a simplified image rather than a full-color photo. `removephoto` deletes a local source image; `clearphoto` sends a blank image to the mask. The current protocol does not expose a way to delete image data stored in the mask itself.
 
-To delete a local photo without connecting to the mask, run `go run . -remove-photo photosforuse/image.png`.
+Támogatott képformátumok LED-kijelzőkhöz
+• JPEG: Kis méretű, tömörített fájlok, alkalmas egyszerű képekhez.
+• PNG: Támogatja az átlátszó háttérfelületeket és veszteségmentes minőséget biztosít.
+• BMP: Nagy felbontású, tömörítetlen képekhez.
+• TIFF: Csúcsminőségű kijelzőkhöz és részletgazdag vizuális tartalmakhoz.
+• GIF: Dinamikus, mozgó tartalmak megjelenítésére alkalmas képernyőkön.
+
+Yousef's presentation:
+- teaching AI to talk and write like a human being from 0

@@ -167,6 +167,16 @@ func doDemoControlLoop() {
 				log.Errorf("Upload photo: %v", err)
 			}
 
+		case "animation":
+			path, err := commandPath(cmd)
+			if err != nil {
+				log.Errorf("Play animation: %v", err)
+				continue
+			}
+			if err := mask.PlayGIFFromFile(path); err != nil {
+				log.Errorf("Play animation: %v", err)
+			}
+
 		case "clearphoto":
 			if err := mask.ClearImage(); err != nil {
 				log.Errorf("Clear photo: %v", err)
