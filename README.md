@@ -1,7 +1,5 @@
 # mask-go
 
-[Play store link of the control app](https://play.google.com/store/apps/details?id=cn.com.heaton.shiningmask)
-
 Features:
 - Connection with mask over BLE (using tinygo.org/x/bluetooth)
 - Controlling the mask remotely (Brightness, Static image, Anmination, Text speed, Text color)
