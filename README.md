@@ -59,5 +59,7 @@ Támogatott képformátumok LED-kijelzőkhöz
 
 • GIF: Dinamikus, mozgó tartalmak megjelenítésére alkalmas képernyőkön.
 
-**Todo do proposal: **
+** Todo do proposal: **
 - real time image upload, animation and change display buuuut I think this is already doable from terminal
+- Test putting longer videos
+- Connect to other softwares (e.g. touch designer)
