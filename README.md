@@ -45,6 +45,9 @@ To delete a local photo without connecting to the mask, run `go run . -remove-ph
 
 The `animation` command plays GIF frames in sequence, using each frame's delay and loop setting. It blocks while the animation plays; press Ctrl+C to stop a GIF configured to loop forever. GIF frames are converted to the mask's 16-pixel-high, one-bit-per-pixel format with one RGB color per column. `photo <path>` remains available for still images, including the first frame of a GIF.
 
+**Todo:**  
+- real time image upload, animation and change display
+
 The `photo` command reads PNG, JPEG, or GIF files, scales them to 16 pixels high while preserving their aspect ratio, and uploads them over Bluetooth. The mask uses a one-bit on/off value per pixel and one RGB color per vertical column, so the uploaded result is a simplified image rather than a full-color photo. `removephoto` deletes a local source image; `clearphoto` sends a blank image to the mask. The current protocol does not expose a way to delete image data stored in the mask itself.
 
 Támogatott képformátumok LED-kijelzőkhöz
@@ -59,7 +62,5 @@ Támogatott képformátumok LED-kijelzőkhöz
 
 • GIF: Dinamikus, mozgó tartalmak megjelenítésére alkalmas képernyőkön.
 
-** Todo do proposal: **
-- real time image upload, animation and change display buuuut I think this is already doable from terminal
-- Test putting longer videos
-- Connect to other softwares (e.g. touch designer)
+Yousef's presentation:
+- teaching AI to talk and write like a human being from 0
