@@ -52,17 +52,14 @@ The `animation` command plays GIF frames in sequence, using each frame's delay a
 
 The `photo` command reads PNG, JPEG, or GIF files, scales them to 16 pixels high while preserving their aspect ratio, and uploads them over Bluetooth. The mask uses a one-bit on/off value per pixel and one RGB color per vertical column, so the uploaded result is a simplified image rather than a full-color photo. `removephoto` deletes a local source image; `clearphoto` sends a blank image to the mask. The current protocol does not expose a way to delete image data stored in the mask itself.
 
-Támogatott képformátumok LED-kijelzőkhöz
+Supported Image Formats for LED Displays
 
-• JPEG: Kis méretű, tömörített fájlok, alkalmas egyszerű képekhez.
+• JPEG: Small, compressed files; suitable for simple images.
 
-• PNG: Támogatja az átlátszó háttérfelületeket és veszteségmentes minőséget biztosít.
+• PNG: Supports transparent backgrounds and offers lossless quality.
 
-• BMP: Nagy felbontású, tömörítetlen képekhez.
+• BMP: For high-resolution, uncompressed images.
 
-• TIFF: Csúcsminőségű kijelzőkhöz és részletgazdag vizuális tartalmakhoz.
+• TIFF: For high-end displays and highly detailed visual content.
 
-• GIF: Dinamikus, mozgó tartalmak megjelenítésére alkalmas képernyőkön.
-
-Yousef's presentation:
-- teaching AI to talk and write like a human being from 0
+• GIF: Suitable for displaying dynamic, moving content on screens.
