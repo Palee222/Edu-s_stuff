@@ -49,6 +49,7 @@ The `animation` command plays GIF frames in sequence, using each frame's delay a
 - real time image upload, animation and change display
 - finding a way to put videos (i.e., very long gifs)
 - even connect it to other software, like touchdesigner
+  - control with hands 
 
 The `photo` command reads PNG, JPEG, or GIF files, scales them to 16 pixels high while preserving their aspect ratio, and uploads them over Bluetooth. The mask uses a one-bit on/off value per pixel and one RGB color per vertical column, so the uploaded result is a simplified image rather than a full-color photo. `removephoto` deletes a local source image; `clearphoto` sends a blank image to the mask. The current protocol does not expose a way to delete image data stored in the mask itself.
 
